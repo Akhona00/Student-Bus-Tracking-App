@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Tracker Admin - Test Interface</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/bus.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Bus Tracker Admin - Test Interface</h1>
+        
+        <!-- Bus Update Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Update Bus Location</h5>
+            </div>
+            <div class="card-body">
+                <form id="bus-update-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="bus-id" class="form-label">Bus ID</label>
+                                <input type="text" class="form-control" id="bus-id" placeholder="e.g., BUS001" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="route" class="form-label">Route</label>
+                                <select class="form-select" id="route" required>
+                                    <option value="">Select Route</option>
+                                    <option value="APK-APB">APK → APB</option>
+                                    <option value="APK-DFC">APK → DFC</option>
+                                    <option value="DFC-APB">DFC → APB</option>
+                                    <option value="DFC-APK">DFC → APK</option>
+                                    <option value="APK-SOWETO">APK → Soweto</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" required>
+                                    <option value="active">Active</option>
+                                    <option value="on_route">On Route</option>
+                                    <option value="at_stop">At Stop</option>
+                                    <option value="delayed">Delayed</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="latitude" class="form-label">Latitude</label>
+                                <input type="number" step="any" class="form-control" id="latitude" placeholder="e.g., -25.7479" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="longitude" class="form-label">Longitude</label>
+                                <input type="number" step="any" class="form-control" id="longitude" placeholder="e.g., 28.2293" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Quick Locations</label>
+                                <div class="btn-group d-block" role="group">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm me-1" onclick="setLocation(-25.7479, 28.2293)">APK Campus</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm me-1" onclick="setLocation(-25.7679, 28.1293)">DFC Campus</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setLocation(-25.7279, 28.0293)">APB Campus</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Bus Location</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Send Notification Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Send Notification</h5>
+            </div>
+            <div class="card-body">
+                <form id="notification-form">
+                    <div class="mb-3">
+                        <label for="notification-message" class="form-label">Notification Message</label>
+                        <textarea class="form-control" id="notification-message" rows="3" placeholder="Enter notification message..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Send Notification</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Test Buttons -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Tests</h5>
+            </div>
+            <div class="card-body">
+                <button class="btn btn-info me-2" onclick="simulateMovingBus()">Simulate Moving Bus</button>
+                <button class="btn btn-warning me-2" onclick="testEmergencyNotification()">Test Emergency Notification</button>
+                <button class="btn btn-secondary" onclick="clearAllBuses()">Clear All Buses</button>
+            </div>
+        </div>
+
+        <!-- Response Display -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Response Log</h5>
+            </div>
+            <div class="card-body">
+                <div id="response-log" class="bg-light p-3" style="height: 200px; overflow-y: auto;">
+                    <small class="text-muted">Ready for testing...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set predefined locations
+        function setLocation(lat, lng) {
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+        }
+
+        // Log responses
+        function logResponse(message, type = 'info') {
+            const log = document.getElementById('response-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const alertClass = type === 'error' ? 'text-danger' : type === 'success' ? 'text-success' : 'text-info';
+            
+            log.innerHTML += `<div class="${alertClass}"><strong>[${timestamp}]</strong> ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Handle bus update form
+        document.getElementById('bus-update-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                bus_id: document.getElementById('bus-id').value,
+                lat: parseFloat(document.getElementById('latitude').value),
+                lng: parseFloat(document.getElementById('longitude').value),
+                status: document.getElementById('status').value,
+                route: document.getElementById('route').value
+            };
+
+            try {
+                const response = await fetch('/admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                logResponse(`Bus ${data.bus_id} updated successfully: ${result.message}`, 'success');
+            } catch (error) {
+                logResponse(`Error updating bus: ${error.message}`, 'error');
+            }
+        });
+
+        // Handle notification form
+        document.getElementById('notification-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = document.getElementById('notification-message').value;
+
+            try {
+                const response = await fetch('/send_notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const result = await response.json();
+                logResponse(`Notification sent: ${result.message}`, 'success');
+                document.getElementById('notification-message').value = '';
+            } catch (error) {
+                logResponse(`Error sending notification: ${error.message}`, 'error');
+            }
+        });
+
+        // Simulate moving bus
+        function simulateMovingBus() {
+            const busId = 'BUS001';
+            const route = 'APK-DFC';
+            const startLat = -25.7479;
+            const startLng = 28.2293;
+            const endLat = -25.7679;
+            const endLng = 28.1293;
+            
+            let step = 0;
+            const totalSteps = 10;
+            
+            const interval = setInterval(async () => {
+                const progress = step / totalSteps;
+                const lat = startLat + (endLat - startLat) * progress;
+                const lng = startLng + (endLng - startLng) * progress;
+                
+                const status = step === 0 ? 'active' : step === totalSteps ? 'at_stop' : 'on_route';
+                
+                try {
+                    await fetch('/admin', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            bus_id: busId,
+                            lat: lat,
+                            lng: lng,
+                            status: status,
+                            route: route
+                        })
+                    });
+                    
+                    logResponse(`Moving bus ${busId} - Step ${step + 1}/${totalSteps + 1}`, 'info');
+                } catch (error) {
+                    logResponse(`Error in simulation: ${error.message}`, 'error');
+                    clearInterval(interval);
+                }
+                
+                step++;
+                if (step > totalSteps) {
+                    clearInterval(interval);
+                    logResponse('Bus simulation completed', 'success');
+                }
+            }, 2000);
+        }
+
+        // Test emergency notification
+        function testEmergencyNotification() {
+            const messages = [
+                'Emergency: Bus BUS001 experiencing mechanical issues on APK-DFC route',
+                'Update: Replacement bus dispatched for APK-DFC route',
+                'Service restored: Normal operations resumed on all routes'
+            ];
+            
+            messages.forEach((message, index) => {
+                setTimeout(async () => {
+                    try {
+                        await fetch('/send_notification', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ message: message })
+                        });
+                        logResponse(`Emergency notification ${index + 1} sent`, 'success');
+                    } catch (error) {
+                        logResponse(`Error with emergency notification: ${error.message}`, 'error');
+                    }
+                }, index * 3000);
+            });
+        }
+
+        // Clear all buses (you'd need to implement this endpoint)
+        function clearAllBuses() {
+            logResponse('Clear all buses function would need a backend endpoint', 'info');
+        }
+    </script>
+</body>
+</html>
