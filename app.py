@@ -20,6 +20,8 @@ import datetime
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 from functools import wraps
+import certifi
+
 
 # Load environment variables
 load_dotenv()
@@ -40,7 +42,7 @@ MIN_PASSWORD_LENGTH = 8
 VERIFICATION_CODE_LENGTH = 6
 
 # MongoDB Connection
-client = pymongo.MongoClient(MONGO_URI)
+client = client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = client['bus_tracker']
 users_collection = db['users']
 buses_collection = db['buses']
