@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const API_KEY = API_KEY(process.env.API_KEY); // Replace with your actual API key if needed
+  const API_KEY = "1b7e8832-3614-4820-a3ca-58d12afb1f44"; // Replace with your actual API key if needed
 
   const loginForm = document.getElementById("login-form");
   const verifyForm = document.getElementById("verify-form");

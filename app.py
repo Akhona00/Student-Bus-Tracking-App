@@ -28,13 +28,13 @@ load_dotenv()
 # Initialize Flask app
 app = Flask(__name__ , template_folder='templates')
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 
 # Configuration
 MONGO_URI = ('mongodb://127.0.0.1:27017/')
-API_KEY = "1b7e8832-3614-4820-a3ca-58d12afb1f44"
-GOOGLE_MAPS_API_KEY = "AIzaSyDk5C_4YF_QG-lM9daS5Su4rb8Ns-iZmDE"
+API_KEY = os.getenv("API_KEY")
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 app.secret_key = "N0nzuz0_n0ku_kha780_9iiwh9"
 MIN_PASSWORD_LENGTH = 8
 VERIFICATION_CODE_LENGTH = 6
@@ -337,5 +337,6 @@ def get_bus_by_id(bus_id):
         })
     return jsonify({'error': 'Bus not found'}), 404
 
+
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
