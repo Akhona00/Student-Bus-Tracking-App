@@ -39,7 +39,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 MONGO_URI = os.getenv("MONGO_URI")
 API_KEY = os.getenv("API_KEY")
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
-SECRET_KEY = os.getenv("SECRET_KEY")  # Use a default secret key if not set in .env
+app.secret_key= os.getenv("SECRET_KEY")  # Use a default secret key if not set in .env
 MIN_PASSWORD_LENGTH = 8
 VERIFICATION_CODE_LENGTH = 6
 
