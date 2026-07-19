@@ -1,5 +1,4 @@
-import eventlet
-eventlet.monkey_patch()
+
 
 
 import bcrypt
@@ -30,7 +29,7 @@ load_dotenv()
 # Initialize Flask app
 app = Flask(__name__ , template_folder='templates')
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 
 # Configuration
